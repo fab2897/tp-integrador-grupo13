@@ -1,22 +1,29 @@
+import React from 'react';
+import { Box } from '@mui/material';
+import { Outlet } from 'react-router-dom';
+import { Header } from './Header';
+import { Navbar } from './Navbar'; 
+import { Footer } from './Footer';
+
 export const ContenidoPrincipal = () => {
   return (
-    <div className="contenedor-central">
-      <section className="seccion-proyectos">
-        <article className="tarjeta">
-          <h2>Sección de Proyectos</h2>
-          <p>Aquí irán las tablas o tarjetas de tu proyecto final.</p>
-        </article>
-        
-        <article className="tarjeta">
-          <h2>Otro Proyecto</h2>
-          <p>Detalles del segundo proyecto.</p>
-        </article>
-      </section>
-
-      <aside className="barra-lateral">
-        <h3>Información extra</h3>
-        <p>Aquí puedes poner un buscador, filtros o enlaces rápidos.</p>
-      </aside>
-    </div>
+    <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+     
+      <Header />
+      <Navbar />
+      <Box 
+        component="main" 
+        sx={{ 
+          flexGrow: 1, 
+          p: 4, 
+          backgroundColor: '#E5E7EB', 
+          display: 'flex',
+          flexDirection: 'column'
+        }}
+      >
+        <Outlet /> 
+      </Box>
+      <Footer />
+    </Box>
   );
 };
