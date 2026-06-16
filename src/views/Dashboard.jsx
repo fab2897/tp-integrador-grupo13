@@ -20,7 +20,6 @@ const Dashboard = () => {
         }}
       >
         
-        {/* Tarjeta 1 */}
         <Paper className="tarjeta-animada" sx={{ p: 4, borderTop: '5px solid #1E293B', borderRadius: 2, minWidth: '280px' }}>
           <Typography variant="h6" color="text.secondary" gutterBottom>
             Total Clientes
@@ -30,7 +29,6 @@ const Dashboard = () => {
           </Typography>
         </Paper>
 
-        {/* Tarjeta 2 */}
         <Paper className="tarjeta-animada" sx={{ p: 4, borderTop: '5px solid #0284C7', borderRadius: 2, minWidth: '280px' }}>
           <Typography variant="h6" color="text.secondary" gutterBottom>
             Nuevos este mes

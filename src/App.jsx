@@ -1,59 +1,52 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import React, { useContext } from 'react';
+import { BrowserRouter, Routes, Route, Navigate, Outlet } from 'react-router-dom';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
-import { Box, Container } from '@mui/material';
 
-import { Header } from './Components/Layout/Header.jsx';
-import { Navbar } from './Components/Layout/Navbar.jsx';
-import { Footer } from './Components/Layout/Footer.jsx';
+import { AdminProvider, AdminContext } from './context/AdminContext.jsx';
+import { ContenidoPrincipal } from './Components/Layout/ContenidoPrincipal.jsx';
 
 import Dashboard from './views/Dashboard.jsx';
 import Login from './views/Login.jsx';
 import ListaClientes from './views/ListaClientes.jsx';
 import DetalleCliente from './views/DetalleCliente.jsx';
 
-
 const theme = createTheme({
   palette: {
-    primary: {
-      main: '#1E293B', // Azul marino
-    },
-    secondary: {
-      main: '#0284C7', // Celeste
-    },
-    background: {
-      default: '#e0e1e2', // Fondo gris clarito
-    },
+    primary: { main: '#1E293B' },
+    secondary: { main: '#0284C7' },
+    background: { default: '#E5E7EB' },
   },
 });
+
+const RutaProtegida = () => {
+  const { admin } = useContext(AdminContext);
+  return admin ? <Outlet /> : <Navigate to="/login" replace />;
+};
 
 function App() {
   return (
     <ThemeProvider theme={theme}>
-
       <CssBaseline />
-      
-      <BrowserRouter>
-       
-        <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
-          
-          <Header />
-          <Navbar />
+      <AdminProvider>
+        <BrowserRouter>
+          <Routes>
+            
+            <Route path="/login" element={<Login />} />
 
-      
-          <Container component="main" sx={{ mt: 4, mb: 4, flexGrow: 1 }}>
-            <Routes>
-              <Route path="/" element={<Dashboard />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/clientes" element={<ListaClientes />} />
-              <Route path="/clientes/:id" element={<DetalleCliente />} />
-            </Routes>
-          </Container>
+            <Route element={<RutaProtegida />}>
+              <Route element={<ContenidoPrincipal />}>
+                <Route path="/" element={<Dashboard />} />
+                <Route path="/clientes" element={<ListaClientes />} />
+                <Route path="/clientes/:id" element={<DetalleCliente />} />
+              </Route>
+            </Route>
 
-          <Footer />
-          
-        </Box>
-      </BrowserRouter>
+            <Route path="*" element={<Navigate to="/" replace />} />
+
+          </Routes>
+        </BrowserRouter>
+      </AdminProvider>
     </ThemeProvider>
   );
 }

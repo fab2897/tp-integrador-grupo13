@@ -55,22 +55,6 @@ export const Navbar = () => {
       >
         LISTA DE CLIENTES
       </Button>
-
-      {/*boton perfill*/}
-      <Button
-        color="inherit"
-        startIcon={<PersonIcon />}
-        sx={{
-          textTransform: 'none',
-          color: 'white',
-          fontSize: '0.95rem',
-          fontWeight: 'normal',
-          borderRadius: 0,
-          px: 1
-        }}
-      >
-        PERFIL
-      </Button>
     </Box>
   );
 };

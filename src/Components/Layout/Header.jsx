@@ -1,17 +1,17 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { AppBar, Toolbar, Typography, Button, Box, Avatar } from '@mui/material';
 import SupervisorAccountIcon from '@mui/icons-material/SupervisorAccount';
+import { AdminContext } from '../../context/AdminContext.jsx'; 
 
 export const Header = () => {
-  // Datos temporales
-  const adminName = "Valentin"; 
-  const adminSector = "Soporte"; 
+  const { admin, logout } = useContext(AdminContext);
+  const name = admin?.name || "Usuario";
+  const sector = admin?.sector || "Soporte";
 
   return (
     <AppBar position="static" sx={{ backgroundColor: '#1E293B', elevation: 0 }}>
       <Toolbar sx={{ display: 'flex', justifyContent: 'space-between' }}>
         
-        {/* Titulo */}
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
           <SupervisorAccountIcon sx={{ mr: 1, color: 'white' }} />
           <Typography variant="h6" component="div" sx={{ fontWeight: 'bold', color: 'white' }}>
@@ -19,13 +19,11 @@ export const Header = () => {
           </Typography>
         </Box>
 
-        {/* Foto de Perfil y Botón */}
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
           
-          {/*foto de perfil */}
           <Avatar 
             sx={{ 
-              bgcolor: '#0284C7',
+              bgcolor: '#0284C7', 
               width: 36, 
               height: 36,
               fontSize: '0.95rem',
@@ -33,17 +31,18 @@ export const Header = () => {
               color: 'white'
             }}
           >
-            {adminName.charAt(0)} {/* inicial*/}
+            {name.charAt(0)}
           </Avatar>
 
           <Typography variant="body2" sx={{ color: 'white', textAlign: 'right' }}>
-            <strong>{adminName}</strong> ({adminSector})
+            <strong>{name}</strong> ({sector})
           </Typography>
 
           <Button 
             variant="contained" 
             color="error" 
             size="small" 
+            onClick={logout} 
             sx={{ textTransform: 'none', fontWeight: 'bold', backgroundColor: '#d32f2f' }}
           >
             Cerrar Sesión
