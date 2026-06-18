@@ -1,74 +1,66 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   Box, Typography, Paper, TextField, Button, Table, 
   TableBody, TableCell, TableContainer, TableHead, TableRow,
-  Dialog, DialogTitle, DialogContent, DialogActions
+  CircularProgress, Alert
 } from '@mui/material';
 import VisibilityIcon from '@mui/icons-material/Visibility';
-import AddIcon from '@mui/icons-material/Add';
-import { AdminContext } from '../context/AdminContext.jsx'; 
+import { AdminContext } from '../context/AdminContext.jsx';
 
-
+// Esta exportacion es estatica para que despues no se cague el modulo D changos, despues borrenlo
 export const CLIENTES_SIMULADOS = [
-  {
-    id: 1,
-    name: { firstname: 'Valentin', lastname: 'Estrada' },
-    email: 'valentin@mail.com',
-    phone: '388-1234567',
-    address: { city: 'Jujuy', street: 'Belgrano', number: 450, zipcode: '4600' },
-    username: 'valen_admin'
-  },
-  {
-    id: 2,
-    name: { firstname: 'Gonzalo', lastname: 'Perez' },
-    email: 'gonzalo@mail.com',
-    phone: '388-7654321',
-    address: { city: 'Palpalá', street: 'San Martin', number: 120, zipcode: '4612' },
-    username: 'gonza_dev'
-  }
+  { id: 1, name: { firstname: 'Valentin', lastname: 'Estrada' }, email: 'valentin@mail.com', phone: '388-1234567', address: { city: 'Jujuy', street: 'Belgrano', number: 450, zipcode: '4600' }, username: 'valen_admin' },
+  { id: 2, name: { firstname: 'Gonzalo', lastname: 'Perez' }, email: 'gonzalo@mail.com', phone: '388-7654321', address: { city: 'Palpalá', street: 'San Martin', number: 120, zipcode: '4612' }, username: 'gonza_dev' }
 ];
+
 const ListaClientes = () => {
   const navigate = useNavigate();
-  const { admin } = useContext(AdminContext); 
+  const { admin } = useContext(AdminContext);
+  
+  // ESTADOS OBLIGATORIOS PARA CONTROLAR LA CARGA DE DATOS, ERRORES Y FILTRADO
+  const [clientes, setClientes] = useState([]);
   const [busqueda, setBusqueda] = useState('');
-  const [openModal, setOpenModal] = useState(false); 
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  const [nuevoNombre, setNuevoNombre] = useState('');
-  const [nuevoApellido, setNuevoApellido] = useState('');
-  const [nuevoEmail, setNuevoEmail] = useState('');
+  // Petición asincrónica FakeStoreAPI
+  useEffect(() => {
+    const obtenerClientes = async () => {
+      try {
+        setLoading(true); // Estado: Cargando pa
+        const respuesta = await fetch('https://fakestoreapi.com/users');
+        
+        if (!respuesta.ok) {
+            throw new Error('Error de red al intentar obtener los clientes.');
+        }
+        
+        const datos = await respuesta.json();
+        setClientes(datos); // Estado: Exito pa
+        setError(null);
+      } catch (error) {
+        setError('Error al obtener los clientes. Por favor, verifique su conexión a la API.'); // Estado: Error
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  const clientesFiltrados = CLIENTES_SIMULADOS.filter(cliente => {
+    obtenerClientes();
+  }, []);
+
+  // Buscador dinamico por apellido o ciudad
+  const clientesFiltrados = clientes.filter(cliente => {
     const termino = busqueda.toLowerCase();
     const apellido = cliente.name.lastname.toLowerCase();
     const ciudad = cliente.address.city.toLowerCase();
     return apellido.includes(termino) || ciudad.includes(termino);
   });
 
-  const handleGuardarCliente = (e) => {
-    e.preventDefault();
-    alert(`Cliente registrado exitosamente (Simulación POST). ID asignado: ${CLIENTES_SIMULADOS.length + 1}`);
-    setOpenModal(false);
-  };
-
   return (
     <Box sx={{ p: 3 }}>
-      <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
-        <Typography variant="h4" sx={{ fontWeight: 'bold', color: '#1E293B' }}>
-          Panel de Clientes
-        </Typography>
-        {/* PERMISO DE NUEVO CLIENTE */}
-        {admin?.rol !== 'Invitado' && (
-          <Button 
-            variant="contained" 
-            color="success" 
-            startIcon={<AddIcon />}
-            onClick={() => setOpenModal(true)}
-          >
-            Nuevo Cliente
-          </Button>
-        )}
-      </Box>
+      <Typography variant="h4" sx={{ fontWeight: 'bold', color: '#1E293B', mb: 3 }}>
+        Panel de Clientes
+      </Typography>
 
       <TextField
         fullWidth
@@ -78,65 +70,56 @@ const ListaClientes = () => {
         onChange={(e) => setBusqueda(e.target.value)}
         sx={{ mb: 3, backgroundColor: '#FFFFFF' }}
       />
-
-      <TableContainer component={Paper}>
-        <Table>
-          <TableHead sx={{ backgroundColor: '#1E293B' }}>
-            <TableRow>
-              <TableCell sx={{ color: '#FFF', fontWeight: 'bold' }}>ID</TableCell>
-              <TableCell sx={{ color: '#FFF', fontWeight: 'bold' }}>Nombre Completo</TableCell>
-              <TableCell sx={{ color: '#FFF', fontWeight: 'bold' }}>Email</TableCell>
-              <TableCell sx={{ color: '#FFF', fontWeight: 'bold' }}>Teléfono</TableCell>
-              <TableCell sx={{ color: '#FFF', fontWeight: 'bold' }}>Ciudad</TableCell>
-              <TableCell sx={{ color: '#FFF', fontWeight: 'bold', textAlign: 'center' }}>Acciones</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {clientesFiltrados.map((cliente) => (
-              <TableRow key={cliente.id} hover>
-                <TableCell>{cliente.id}</TableCell>
-                <TableCell>{`${cliente.name.firstname} ${cliente.name.lastname}`}</TableCell>
-                <TableCell>{cliente.email}</TableCell>
-                <TableCell>{cliente.phone}</TableCell>
-                <TableCell>{cliente.address.city}</TableCell>
-                <TableCell sx={{ textAlign: 'center' }}>
-                  {/* PERMISO DE VER FICHA*/}
-                  {admin?.rol !== 'Invitado' ? (
-                    <Button
-                      variant="contained"
-                      color="secondary"
-                      size="small"
-                      startIcon={<VisibilityIcon />}
-                      onClick={() => navigate(`/clientes/${cliente.id}`)}
-                    >
-                      Ver Ficha Completa
-                    </Button>
-                  ) : (
-                    <Typography variant="body2" color="text.secondary">
-                      Sin acceso
-                    </Typography>
-                  )}
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
-
-      <Dialog open={openModal} onClose={() => setOpenModal(false)} fullWidth maxWidth="xs">
-        <DialogTitle sx={{ fontWeight: 'bold' }}>Dar de Alta Cliente</DialogTitle>
-        <Box component="form" onSubmit={handleGuardarCliente}>
-          <DialogContent display="flex" flexDirection="column" gap={2}>
-            <TextField label="Nombre" fullWidth required margin="dense" value={nuevoNombre} onChange={(e)=>setNuevoNombre(e.target.value)} />
-            <TextField label="Apellido" fullWidth required margin="dense" value={nuevoApellido} onChange={(e)=>setNuevoApellido(e.target.value)} />
-            <TextField label="Email" type="email" fullWidth required margin="dense" value={nuevoEmail} onChange={(e)=>setNuevoEmail(e.target.value)} />
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={() => setOpenModal(false)}>Cancelar</Button>
-            <Button type="submit" variant="contained" color="primary">Guardar</Button>
-          </DialogActions>
+      {loading ? (
+        <Box sx={{ display: 'flex', justifyContent: 'center', p: 5 }}>
+          <CircularProgress />
         </Box>
-      </Dialog>
+      ) : error ? (
+        <Alert severity="error" sx={{ mb: 3 }}>{error}</Alert>
+      ) : (
+        <TableContainer component={Paper}>
+          <Table>
+            <TableHead sx={{ backgroundColor: '#1E293B' }}>
+              <TableRow>
+                <TableCell sx={{ color: '#FFF', fontWeight: 'bold' }}>ID</TableCell>
+                <TableCell sx={{ color: '#FFF', fontWeight: 'bold' }}>Nombre Completo</TableCell>
+                <TableCell sx={{ color: '#FFF', fontWeight: 'bold' }}>Email</TableCell>
+                <TableCell sx={{ color: '#FFF', fontWeight: 'bold' }}>Teléfono</TableCell>
+                <TableCell sx={{ color: '#FFF', fontWeight: 'bold' }}>Ciudad</TableCell>
+                <TableCell sx={{ color: '#FFF', fontWeight: 'bold', textAlign: 'center' }}>Acciones</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {clientesFiltrados.map((cliente) => (
+                <TableRow key={cliente.id} hover>
+                  <TableCell>{cliente.id}</TableCell>
+                  <TableCell>{`${cliente.name.firstname} ${cliente.name.lastname}`}</TableCell>
+                  <TableCell>{cliente.email}</TableCell>
+                  <TableCell>{cliente.phone}</TableCell>
+                  <TableCell>{cliente.address.city}</TableCell>
+                  <TableCell sx={{ textAlign: 'center' }}>
+                    {admin?.rol !== 'Invitado' ? (
+                      <Button
+                        variant="contained"
+                        color="secondary"
+                        size="small"
+                        startIcon={<VisibilityIcon />}
+                        onClick={() => navigate(`/clientes/${cliente.id}`)}
+                      >
+                        Ver Ficha Completa
+                      </Button>
+                    ) : (
+                      <Typography variant="body2" color="text.secondary">
+                        Sin acceso
+                      </Typography>
+                    )}
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      )}
     </Box>
   );
 };
