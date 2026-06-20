@@ -22,6 +22,7 @@ export const Header = () => {
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
           
           <Avatar 
+            src={admin?.imagen} 
             sx={{ 
               bgcolor: '#0284C7', 
               width: 36, 

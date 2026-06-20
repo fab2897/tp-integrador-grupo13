@@ -1,37 +1,52 @@
 import React, { useState, useContext } from 'react';
-import { Box, Typography, Paper, TextField, Button, Avatar, Alert, MenuItem } from '@mui/material';
+import { Box, Typography, Paper, TextField, Button, Avatar, Alert } from '@mui/material';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import { useNavigate } from 'react-router-dom';
 import { AdminContext } from '../context/AdminContext.jsx';
+import { LISTA_USUARIOS } from '../data/usuarios.js'; 
 
 const Login = () => {
   const navigate = useNavigate();
   const { login } = useContext(AdminContext); 
   
-  const [nombre, setNombre] = useState('');
-  const [sector, setSector] = useState('');
+  const [correo, setCorreo] = useState('');
+  const [contra, setContra] = useState('');
   const [error, setError] = useState('');
 
   const handleSubmit = (e) => {
     e.preventDefault();
     setError('');
 
-    if (!nombre || !sector) {
+    if (!correo || !contra) {
       setError('Por favor, completa todos los campos.');
       return;
     }
 
+    // list
+    const usuarioEncontrado = LISTA_USUARIOS.find(
+      (u) => u.correo.toLowerCase() === correo.toLowerCase() && u.contra === contra
+    );
+
+    if (!usuarioEncontrado) {
+      setError('Correo o contraseña incorrectos.');
+      return;
+    }
+
+  
     const usuarioLogueado = { 
-      name: nombre, 
-      sector: sector,
-      rol: sector 
+      name: usuarioEncontrado.nombre, 
+      sector: usuarioEncontrado.sector,
+      rol: usuarioEncontrado.rol,
+      imagen: usuarioEncontrado.imagen
     };
+
     login(usuarioLogueado); 
     navigate('/');
   };
 
   const handleInvitado = () => {
-    const invitadoUser = { name: 'Invitado', sector: 'Ninguno', rol: 'Invitado' };
+    //invitado
+    const invitadoUser = { name: 'Invitado', sector: 'Ninguno', rol: 'Invitado', imagen: null };
     login(invitadoUser); 
     navigate('/');
   };
@@ -67,29 +82,27 @@ const Login = () => {
             margin="normal"
             required
             fullWidth
-            id="nombre"
-            label="Nombre del Administrador"
-            name="nombre"
+            id="correo"
+            label="Correo Electrónico"
+            name="correo"
+            type="email"
             autoFocus
-            value={nombre}
-            onChange={(e) => setNombre(e.target.value)}
-            inputProps={{ maxLength: 50 }}
+            value={correo}
+            onChange={(e) => setCorreo(e.target.value)}
+            inputProps={{ maxLength: 35 }}
           />
-
           <TextField
-            select
             margin="normal"
             required
             fullWidth
-            id="sector"
-            label="Sector / Rol"
-            name="sector"
-            value={sector}
-            onChange={(e) => setSector(e.target.value)}
-          >
-            <MenuItem value="Soporte">Soporte</MenuItem>
-            <MenuItem value="Gerencia">Gerencia</MenuItem>
-          </TextField>
+            id="contra"
+            label="Contraseña"
+            name="contra"
+            type="password"
+            value={contra}
+            onChange={(e) => setContra(e.target.value)}
+            inputProps={{ maxLength: 15 }}
+          />
           
           <Button
             type="submit"
