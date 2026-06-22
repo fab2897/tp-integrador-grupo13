@@ -8,11 +8,6 @@ import {
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import { AdminContext } from '../context/AdminContext.jsx';
 
-// Esta exportacion es estatica para que despues no se cague el modulo D changos, despues borrenlo
-export const CLIENTES_SIMULADOS = [
-  { id: 1, name: { firstname: 'Valentin', lastname: 'Estrada' }, email: 'valentin@mail.com', phone: '388-1234567', address: { city: 'Jujuy', street: 'Belgrano', number: 450, zipcode: '4600' }, username: 'valen_admin' },
-  { id: 2, name: { firstname: 'Gonzalo', lastname: 'Perez' }, email: 'gonzalo@mail.com', phone: '388-7654321', address: { city: 'Palpalá', street: 'San Martin', number: 120, zipcode: '4612' }, username: 'gonza_dev' }
-];
 
 const ListaClientes = () => {
   const navigate = useNavigate();
