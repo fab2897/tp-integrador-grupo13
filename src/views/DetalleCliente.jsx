@@ -1,15 +1,18 @@
-import React, { useContext, useEffect } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Box, Typography, Paper, Button, Card, CardContent, Divider, Alert } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { AdminContext } from '../context/AdminContext.jsx';
-import { CLIENTES_SIMULADOS } from './ListaClientes.jsx'; 
+ 
 
 const DetalleCliente = () => {
   const { id } = useParams(); 
   const navigate = useNavigate();
   const { admin } = useContext(AdminContext); 
+  const [cliente, setCliente] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
  //mantener este ussefect porff
   useEffect(() => {
@@ -18,8 +21,49 @@ const DetalleCliente = () => {
     }
   }, [admin, navigate]);
 //hasta aca
+useEffect(() => {
+  const obtenerCliente = async () => {
+    try {
+      setLoading(true);
 
-  const cliente = CLIENTES_SIMULADOS.find(c => c.id === parseInt(id));
+      const respuesta = await fetch(
+        `https://fakestoreapi.com/users/${id}`
+      );
+
+      if (!respuesta.ok) {
+        throw new Error('Error al obtener cliente');
+      }
+
+      const data = await respuesta.json();
+
+      setCliente(data);
+      setError(null);
+
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  obtenerCliente();
+}, [id]);
+
+if (loading) {
+  return (
+    <Box sx={{ p: 3 }}>
+      <Typography>Cargando cliente...</Typography>
+    </Box>
+  );
+}
+
+if (error) {
+  return (
+    <Box sx={{ p: 3 }}>
+      <Alert severity="error">{error}</Alert>
+    </Box>
+  );
+}
   if (admin?.rol === 'Invitado' || !cliente) {
     return (
       <Box sx={{ p: 3 }}>
@@ -31,10 +75,18 @@ const DetalleCliente = () => {
     );
   }
 
-  const handleEliminar = () => {
-    alert(`Petición HTTP DELETE simulada con éxito para el cliente ID: ${cliente.id}`);
+  const handleEliminar = async () => {
+  try {
+    await fetch(`https://fakestoreapi.com/users/${cliente.id}`, {
+      method: 'DELETE',
+    });
+
+    alert('Cliente eliminado correctamente');
     navigate('/clientes');
-  };
+  } catch (error) {
+    alert('Error al eliminar cliente');
+  }
+};
 
   return (
     <Box sx={{ p: 3, maxWidth: 600, margin: '0 auto' }}>
@@ -53,6 +105,9 @@ const DetalleCliente = () => {
           </Typography>
           <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 2 }}>
             Usuario de Sistema: {cliente.username}
+          </Typography>
+          <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 2 }}>
+            Password: {cliente.password}
           </Typography>
           
           <Divider sx={{ mb: 2 }} />
@@ -79,7 +134,7 @@ const DetalleCliente = () => {
 
           <Divider sx={{ my: 2 }} />
 
-          //SECTOR DE PERMISOSSSSS
+          {/* SECTOR DE PERMISOS */}
           {admin?.sector === 'Gerencia' ? (
             <Box sx={{ mt: 3, textAlign: 'right' }}>
               <Button
