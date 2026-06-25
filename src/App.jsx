@@ -3,7 +3,7 @@ import { RouterProvider } from 'react-router-dom';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 
-// Importamos tu Provider y el nuevo router de la carpeta rutas
+
 import { AdminProvider } from './context/AdminContext.jsx';
 import { router } from './routes/routes.jsx';
 
@@ -20,11 +20,10 @@ function App() {
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <AdminProvider>
-        {/* El proveedor nuevo encargado de leer el archivo index.jsx */}
         <RouterProvider router={router} />
       </AdminProvider>
     </ThemeProvider>
   );
 }
 
-export default App;
+export default App;;

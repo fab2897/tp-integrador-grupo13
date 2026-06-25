@@ -7,6 +7,8 @@ import {
 } from '@mui/material';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import { AdminContext } from '../context/AdminContext.jsx';
+//esto era profe
+import FormularioCliente from './FormularioCliente.jsx';
 
 
 const ListaClientes = () => {
@@ -53,10 +55,14 @@ const ListaClientes = () => {
 
   return (
     <Box sx={{ p: 3 }}>
+       <Box display="flex" justifyContent="space-between" alignItems="center" sx={{ mb: 3 }}>
+
       <Typography variant="h4" sx={{ fontWeight: 'bold', color: '#1E293B', mb: 3 }}>
         Panel de Clientes
       </Typography>
+      <FormularioCliente />
 
+      </Box>
       <TextField
         fullWidth
         variant="outlined"
