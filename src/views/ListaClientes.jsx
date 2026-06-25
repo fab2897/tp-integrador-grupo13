@@ -60,7 +60,7 @@ const ListaClientes = () => {
       <Typography variant="h4" sx={{ fontWeight: 'bold', color: '#1E293B', mb: 3 }}>
         Panel de Clientes
       </Typography>
-      <FormularioCliente />
+      {admin?.rol !== 'Invitado' && <FormularioCliente />}
 
       </Box>
       <TextField
