@@ -52,7 +52,6 @@ export default function FormularioCliente() {
       return;
     }
 
-    // 2. Restricción para Teléfono: Solo permite números, guiones y espacios
     if (name === 'phone') {
       const soloTel = value.replace(/[^0-9\- ]/g, '');
       setFormData({ ...formData, [name]: soloTel });
@@ -235,7 +234,7 @@ export default function FormularioCliente() {
                 <TextField
                   label="Altura/Número"
                   name="number"
-                  type="number" // Altura mantiene las flechitas normales
+                  type="number" 
                   fullWidth
                   required
                   value={formData.number}
@@ -244,12 +243,12 @@ export default function FormularioCliente() {
               </Grid>
               <Grid item xs={12} sm={8}>
                 <TextField
-                  label="Código Postal (Zipcode)"
+                  label="Código Postall"
                   name="zipcode"
                   fullWidth
                   required
                   value={formData.zipcode}
-                  onChange={handleChange} // Valida solo números sin flechas molestas
+                  onChange={handleChange} 
                 />
               </Grid>
 
