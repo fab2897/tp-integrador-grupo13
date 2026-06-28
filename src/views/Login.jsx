@@ -3,7 +3,7 @@ import { Box, Typography, Paper, TextField, Button, Avatar, Alert } from '@mui/m
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import { useNavigate } from 'react-router-dom';
 import { AdminContext } from '../context/AdminContext.jsx';
-import { LISTA_USUARIOS } from '../data/usuarios.js'; 
+import { autenticarUsuarioAPI } from '../services/loginService.js'; 
 
 const Login = () => {
   const navigate = useNavigate();
@@ -22,35 +22,22 @@ const Login = () => {
       return;
     }
 
-    // list
-    const usuarioEncontrado = LISTA_USUARIOS.find(
-      (u) => u.correo.toLowerCase() === correo.toLowerCase() && u.contra === contra
-    );
+    try {
+      const usuarioLogueado = autenticarUsuarioAPI(correo, contra);
 
-    if (!usuarioEncontrado) {
-      setError('Correo o contraseña incorrectos.');
-      return;
+      login(usuarioLogueado); 
+      navigate('/');
+
+    } catch (err) {
+      setError(err.message);
     }
-
-  
-    const usuarioLogueado = { 
-      name: usuarioEncontrado.nombre, 
-      sector: usuarioEncontrado.sector,
-      rol: usuarioEncontrado.rol,
-      imagen: usuarioEncontrado.imagen
-    };
-
-    login(usuarioLogueado); 
-    navigate('/');
   };
 
   const handleInvitado = () => {
-    //invitado
-    const invitadoUser = { name: 'Invitado', sector: 'Ninguno', rol: 'Invitado', imagen: null };
+    const invitadoUser = { name: 'Invitado', sector: 'Invitado', rol: 'Invitado', imagen: null };
     login(invitadoUser); 
     navigate('/');
   };
-
   return (
     <Box 
       sx={{ 
