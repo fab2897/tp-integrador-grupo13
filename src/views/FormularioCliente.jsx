@@ -1,51 +1,32 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { 
-  Button, 
-  Dialog, 
-  DialogActions, 
-  DialogContent, 
-  DialogTitle, 
-  TextField, 
-  Grid, 
-  Snackbar, 
-  Alert 
+  Button, Dialog, DialogActions, DialogContent, 
+  DialogTitle, TextField, Grid, Snackbar, Alert 
 } from '@mui/material';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
+import { AdminContext } from '../context/AdminContext.jsx'; 
+import { crearClienteAPI } from '../services/clienteService.js'; 
 
 export default function FormularioCliente() {
   
   const [open, setOpen] = useState(false);
-
-  
   const [snackbar, setSnackbar] = useState({ open: false, mensaje: '' });
+  const { crearCliente,clientes } = useContext(AdminContext);
 
-  
   const [formData, setFormData] = useState({
-    email: '',
-    username: '',
-    password: '',
-    firstname: '',
-    lastname: '',
-    phone: '',
-    city: '',
-    street: '',
-    number: '',
-    zipcode: ''
+    email: '', username: '', password: '', firstname: '', lastname: '',
+    phone: '', city: '', street: '', number: '', zipcode: ''
   });
 
-  
   const handleOpen = () => setOpen(true);
   const handleClose = () => {
     setOpen(false);
-    // Limpiamos el formulario al cerrar
     setFormData({ email: '', username: '', password: '', firstname: '', lastname: '', phone: '', city: '', street: '', number: '', zipcode: '' });
   };
 
-  
   const handleChange = (e) => {
     const { name, value } = e.target;
 
-    
     if (name === 'firstname' || name === 'lastname') {
       const soloLetras = value.replace(/[^A-Za-zÁéíóúÁÉÍÓÚñÑ ]/g, '');
       setFormData({ ...formData, [name]: soloLetras });
@@ -58,23 +39,23 @@ export default function FormularioCliente() {
       return;
     }
 
-    
     if (name === 'zipcode') {
       const soloNumerosZip = value.replace(/[^0-9]/g, '');
       setFormData({ ...formData, [name]: soloNumerosZip });
       return;
     }
 
-    
     setFormData({ ...formData, [name]: value });
   };
 
-  
-  const handleSubmit = async (e) => {
+const handleSubmit = async (e) => {
     e.preventDefault(); 
 
-    
+    const maxId = clientes.reduce((max, c) => (c.id > max ? c.id : max), 0);
+    const nuevoId = maxId + 1;
+
     const clienteAEnviar = {
+      id: nuevoId, 
       email: formData.email,
       username: formData.username,
       password: formData.password,
@@ -87,40 +68,27 @@ export default function FormularioCliente() {
         street: formData.street,
         number: parseInt(formData.number) || 0,
         zipcode: formData.zipcode,
-        geolocation: {
-          lat: '-31.4135',  
-          long: '-64.1810'  
-        }
+        geolocation: { lat: '-31.4135', long: '-64.1810' }
       },
       phone: formData.phone
     };
 
     try {
-      const response = await fetch('https://fakestoreapi.com/users', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(clienteAEnviar)
-      });
+      await crearClienteAPI(clienteAEnviar);
 
-      if (response.ok) {
-        const data = await response.json();
-        
-        setSnackbar({
-          open: true,
-          mensaje: `¡Cliente creado con éxito! ID asignado por la API: ${data.id}`
-        });
-        
-        handleClose(); 
-      } else {
-        alert("Error en el servidor al intentar crear el cliente.");
-      }
+      crearCliente(clienteAEnviar);
+
+      setSnackbar({
+        open: true,
+        mensaje: `¡Cliente creado con éxito! ID local asignado: ${nuevoId}`
+      });
+      
+      handleClose(); 
     } catch (error) {
       console.error("Error en la petición POST:", error);
+      alert("Error al intentar crear el cliente.");
     }
   };
-
   return (
     <>
       <Button 

@@ -1,70 +1,31 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Box, Typography, Paper, Button, Card, CardContent, Divider, Alert } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import { useDetalleCliente } from '../hooks/useDetalleCliente.js'; 
 import DeleteIcon from '@mui/icons-material/Delete';
-import { AdminContext } from '../context/AdminContext.jsx';
- 
-
 const DetalleCliente = () => {
   const { id } = useParams(); 
   const navigate = useNavigate();
-  const { admin } = useContext(AdminContext); 
-  const [cliente, setCliente] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const { cliente, loading, error, admin, handleEliminar } = useDetalleCliente(id, navigate);
 
- //mantener este ussefect porff
-  useEffect(() => {
-    if (admin?.rol === 'Invitado') {
-      navigate('/', { replace: true });
-    }
-  }, [admin, navigate]);
-//hasta aca
-useEffect(() => {
-  const obtenerCliente = async () => {
-    try {
-      setLoading(true);
+  if (loading) {
+    return (
+      <Box sx={{ p: 3 }}>
+        <Typography>Cargando cliente...</Typography>
+      </Box>
+    );
+  }
 
-      const respuesta = await fetch(
-        `https://fakestoreapi.com/users/${id}`
-      );
+  if (error) {
+    return (
+      <Box sx={{ p: 3 }}>
+        <Alert severity="error">{error}</Alert>
+      </Box>
+    );
+  }
 
-      if (!respuesta.ok) {
-        throw new Error('Error al obtener cliente');
-      }
-
-      const data = await respuesta.json();
-
-      setCliente(data);
-      setError(null);
-
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  obtenerCliente();
-}, [id]);
-
-if (loading) {
-  return (
-    <Box sx={{ p: 3 }}>
-      <Typography>Cargando cliente...</Typography>
-    </Box>
-  );
-}
-
-if (error) {
-  return (
-    <Box sx={{ p: 3 }}>
-      <Alert severity="error">{error}</Alert>
-    </Box>
-  );
-}
-  if (admin?.rol === 'Invitado' || !cliente) {
+  if (!cliente) {
     return (
       <Box sx={{ p: 3 }}>
         <Alert severity="warning">Cliente no encontrado o acceso no autorizado.</Alert>
@@ -74,20 +35,6 @@ if (error) {
       </Box>
     );
   }
-
-  const handleEliminar = async () => {
-  try {
-    await fetch(`https://fakestoreapi.com/users/${cliente.id}`, {
-      method: 'DELETE',
-    });
-
-    alert('Cliente eliminado correctamente');
-    navigate('/clientes');
-  } catch (error) {
-    alert('Error al eliminar cliente');
-  }
-};
-
   return (
     <Box sx={{ p: 3, maxWidth: 600, margin: '0 auto' }}>
       <Button 
